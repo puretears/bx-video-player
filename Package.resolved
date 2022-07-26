@@ -1,0 +1,14 @@
+{
+  "pins" : [
+    {
+      "identity" : "bx-slider-view",
+      "kind" : "remoteSourceControl",
+      "location" : "https://gitee.com/coach11/bx-slider-view",
+      "state" : {
+        "revision" : "458bb7ea26648a57fbc854be24e84144ad3bffcd",
+        "version" : "1.0.0"
+      }
+    }
+  ],
+  "version" : 2
+}
