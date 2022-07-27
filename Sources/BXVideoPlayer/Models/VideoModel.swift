@@ -115,6 +115,12 @@ public class VideoModel: ObservableObject {
     player.pause()
   }
   
+  public func seek(to: Double) async {
+    await player.seek(to: CMTimeMakeWithSeconds(to, preferredTimescale: 1000))
+  }
+}
+
+extension VideoModel {
   private func loadDuration(asset: AVAsset) async throws -> VideoInfo {
     let (stat, d) = try await asset.load(.isPlayable, .duration)
     if stat {

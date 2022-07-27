@@ -114,10 +114,15 @@ extension ControlsLayer {
   
   func makeProgressBar() -> some View {
     HStack {
-      BXSliderView(value: $model.currentProgress, onChanged: {
-        print("dragged.")
-      }, onEnded: {
-        print("stop dragging.")
+      BXSliderView(value: $model.currentProgress, onChanged: { curr in
+        model.pause()
+        
+        Task {
+          let sec = Double(curr * Float(model.duration))
+          await model.seek(to:sec)
+        }
+      }, onEnded: { _ in
+        model.play()
       })
       
       Text("00:00/03:08")
