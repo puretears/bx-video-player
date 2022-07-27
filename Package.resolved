@@ -3,10 +3,10 @@
     {
       "identity" : "bx-slider-view",
       "kind" : "remoteSourceControl",
-      "location" : "https://gitee.com/coach11/bx-slider-view",
+      "location" : "https://github.com/puretears/bx-slider-view",
       "state" : {
-        "revision" : "458bb7ea26648a57fbc854be24e84144ad3bffcd",
-        "version" : "1.0.0"
+        "revision" : "3a7670a1a1c02c98130090d3039eefffde929c7a",
+        "version" : "1.0.3"
       }
     }
   ],

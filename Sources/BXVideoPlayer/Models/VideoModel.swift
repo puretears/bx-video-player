@@ -26,11 +26,22 @@ public class VideoModel: ObservableObject {
   var player: AVPlayer = AVPlayer()
   
   @Published public var url: URL
-  @Published public var duration: Double = 0.0
+  @Published public var duration: Double = 1.0
   @Published public var ratio: CGFloat = 16 / 9
   @Published public var isPlaying: Bool = false
+  @Published public var isEditingCurrentTime = false
   
+  @Published public var currentTime: CGFloat = 0
+  @Published public var currentProgress: Float = 0
+  
+  private var timeObserver: Any?
   private var subscriptions: Set<AnyCancellable> = []
+  
+  deinit {
+    if let timeObserver = timeObserver {
+      player.removeTimeObserver(timeObserver)
+    }
+  }
   
   public init(url: URL) {
     self.url = url
@@ -39,7 +50,6 @@ public class VideoModel: ObservableObject {
     Task {
       try? await setCurrentItem(url: url)
     }
-    
     
     player.publisher(for: \.timeControlStatus)
       .sink { [weak self] status in
@@ -52,11 +62,17 @@ public class VideoModel: ObservableObject {
       }
       .store(in: &subscriptions)
   
-    player.addPeriodicTimeObserver(
+    timeObserver = player.addPeriodicTimeObserver(
       forInterval: CMTime(value: 1, timescale: 600),
       queue: .main,
       using: { [weak self] time in
         // TODO: Update playing progress
+        guard let self = self else { return }
+        
+        if !self.isEditingCurrentTime {
+          self.currentTime = time.seconds
+          self.currentProgress = Float(self.currentTime / self.duration)
+        }
       }
     )
   }
