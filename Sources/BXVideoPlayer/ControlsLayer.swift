@@ -114,7 +114,7 @@ extension ControlsLayer {
   
   func makeProgressBar() -> some View {
     HStack {
-      BXSliderView(value: .constant(0.5), onChanged: {
+      BXSliderView(value: $model.currentProgress, onChanged: {
         print("dragged.")
       }, onEnded: {
         print("stop dragging.")

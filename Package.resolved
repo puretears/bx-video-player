@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/puretears/bx-slider-view",
       "state" : {
-        "revision" : "3a7670a1a1c02c98130090d3039eefffde929c7a",
-        "version" : "1.0.3"
+        "branch" : "main",
+        "revision" : "3a7670a1a1c02c98130090d3039eefffde929c7a"
       }
     }
   ],
