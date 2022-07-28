@@ -126,6 +126,7 @@ public class VideoModel: ObservableObject {
     player.pause()
   }
   
+  @MainActor
   public func seekTo(percentage: Float) async {
     isEditingCurrentTime = true
     currentProgress = percentage
