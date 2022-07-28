@@ -21,6 +21,17 @@ enum VideoError: Error {
   case nonPlayable
   case emptyTrack
 }
+extension CGFloat {
+  func asPlayerString() -> String {
+    let formatter = DateComponentsFormatter()
+    
+    formatter.allowedUnits = self >= 3600 ? [.hour, .minute, .second] : [.minute, .second]
+    formatter.unitsStyle = .positional
+    formatter.zeroFormattingBehavior = .pad
+    
+    return formatter.string(from: self) ?? ""
+  }
+}
 
 public class VideoModel: ObservableObject {
   var player: AVPlayer = AVPlayer()

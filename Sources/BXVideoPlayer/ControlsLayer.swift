@@ -122,9 +122,15 @@ extension ControlsLayer {
         model.isEditingCurrentTime = false
       })
       
-      Text("00:00/03:08")
-        .font(.caption2)
-        .foregroundColor(.white)
+      HStack {
+        Text(model.currentTime.asPlayerString())
+          
+        Text("/")
+          
+        Text(CGFloat(model.duration).asPlayerString())
+      }
+      .font(.caption2)
+      .foregroundColor(.white)
     }
   }
 }
