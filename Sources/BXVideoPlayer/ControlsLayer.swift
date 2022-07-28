@@ -75,12 +75,7 @@ extension ControlsLayer {
       
       makeProgressBar()
       
-      Button(action: {
-        print("Toggle fullscreen")
-      }, label: {
-        Image(systemName: "arrow.up.left.and.arrow.down.right")
-      })
-      .foregroundColor(.white)
+      makeFullscreenToggle()
     }
     .frame(height: 44)
     .overlay(
@@ -124,14 +119,26 @@ extension ControlsLayer {
       
       HStack(spacing: 0) {
         Text(model.currentTime.asPlayerString())
-          
         Text("/")
-          
         Text(CGFloat(model.duration).asPlayerString())
       }
       .font(.system(size: 12, design: .monospaced))
       .foregroundColor(.white)
     }
+  }
+  
+  func makeFullscreenToggle() -> some View {
+    Button(action: {
+      print("Toggle fullscreen")
+      
+      UIDevice.current.setValue(
+        UIInterfaceOrientation.landscapeRight.rawValue,
+        forKey: "orientation"
+      )
+    }, label: {
+      Image(systemName: "arrow.up.left.and.arrow.down.right")
+    })
+    .foregroundColor(.white)
   }
 }
 
