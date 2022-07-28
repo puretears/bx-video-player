@@ -131,10 +131,13 @@ extension ControlsLayer {
     Button(action: {
       print("Toggle fullscreen")
       
-      UIDevice.current.setValue(
-        UIInterfaceOrientation.landscapeRight.rawValue,
-        forKey: "orientation"
-      )
+      let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene
+      
+      if #available(iOS 16.0, *) {
+        windowScene?.requestGeometryUpdate(.iOS(interfaceOrientations: .landscape))
+      } else {
+        // Fallback on earlier versions
+      }
     }, label: {
       Image(systemName: "arrow.up.left.and.arrow.down.right")
     })
