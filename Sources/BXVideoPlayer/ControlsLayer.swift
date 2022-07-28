@@ -122,14 +122,14 @@ extension ControlsLayer {
         model.isEditingCurrentTime = false
       })
       
-      HStack {
+      HStack(spacing: 0) {
         Text(model.currentTime.asPlayerString())
           
         Text("/")
           
         Text(CGFloat(model.duration).asPlayerString())
       }
-      .font(.system(size: 12, design: .monospaced).weight(.bold))
+      .font(.system(size: 12, design: .monospaced))
       .foregroundColor(.white)
     }
   }
