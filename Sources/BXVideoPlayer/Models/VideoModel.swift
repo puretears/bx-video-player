@@ -116,6 +116,7 @@ public class VideoModel: ObservableObject {
   }
   
   public func seek(to: Double) async {
+    currentProgress = Float(to / duration)
     await player.seek(to: CMTimeMakeWithSeconds(to, preferredTimescale: 1000))
   }
 }
