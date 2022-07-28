@@ -129,14 +129,29 @@ extension ControlsLayer {
   
   func makeFullscreenToggle() -> some View {
     Button(action: {
-      print("Toggle fullscreen")
-      
-      let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene
-      
-      if #available(iOS 16.0, *) {
-        windowScene?.requestGeometryUpdate(.iOS(interfaceOrientations: .landscape))
-      } else {
-        // Fallback on earlier versions
+      if UIScreen.isLandscape {
+        if #available(iOS 16.0, *) {
+          let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene
+          windowScene?.requestGeometryUpdate(.iOS(interfaceOrientations: .portrait))
+        } else {
+          // Fallback on earlier versions
+          UIDevice.current.setValue(
+            UIInterfaceOrientation.portrait.rawValue,
+            forKey: "orientation"
+          )
+        }
+      }
+      else {
+        if #available(iOS 16.0, *) {
+          let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene
+          windowScene?.requestGeometryUpdate(.iOS(interfaceOrientations: .landscapeRight))
+        } else {
+          // Fallback on earlier versions
+          UIDevice.current.setValue(
+            UIInterfaceOrientation.landscapeRight.rawValue,
+            forKey: "orientation"
+          )
+        }
       }
     }, label: {
       Image(systemName: "arrow.up.left.and.arrow.down.right")
