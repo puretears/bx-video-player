@@ -129,7 +129,7 @@ extension ControlsLayer {
           
         Text(CGFloat(model.duration).asPlayerString())
       }
-      .font(.caption2)
+      .font(.system(size: 12, design: .monospaced).weight(.bold))
       .foregroundColor(.white)
     }
   }
