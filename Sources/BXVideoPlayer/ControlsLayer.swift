@@ -117,6 +117,7 @@ extension ControlsLayer {
       BXSliderView(value: $model.currentProgress, onChanged: { curr in
 //        model.pause()
         model.isEditingCurrentTime = true
+        model.currentProgress = curr
         
         Task {
           let sec = Double(curr * Float(model.duration))
