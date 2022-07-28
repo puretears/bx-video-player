@@ -129,6 +129,7 @@ public class VideoModel: ObservableObject {
   public func seekTo(percentage: Float) async {
     isEditingCurrentTime = true
     currentProgress = percentage
+    currentTime = CGFloat(percentage) * duration
     
     Task {
       let sec = Double(percentage * Float(duration))
