@@ -115,17 +115,11 @@ extension ControlsLayer {
   func makeProgressBar() -> some View {
     HStack {
       BXSliderView(value: $model.currentProgress, onChanged: { curr in
-//        model.pause()
-        model.isEditingCurrentTime = true
-        model.currentProgress = curr
-        
         Task {
-          let sec = Double(curr * Float(model.duration))
-          await model.seek(to:sec)
+          await model.seekTo(percentage:curr)
         }
       }, onEnded: { _ in
         model.isEditingCurrentTime = false
-//        model.play()
       })
       
       Text("00:00/03:08")
@@ -135,10 +129,10 @@ extension ControlsLayer {
   }
 }
 
-//struct ControlsLayer_Previews: PreviewProvider {
-//  static var previews: some View {
-//    BXVideoPlayer(
-//      model: VideoModel(url: URL(string: "https://free-video.boxueio.com/h-task-local-storage-basic.mp4")!)
-//    )
-//  }
-//}
+struct ControlsLayer_Previews: PreviewProvider {
+  static var previews: some View {
+    BXVideoPlayer(
+      model: VideoModel(url: URL(string: "https://free-video.boxueio.com/h-task-local-storage-basic.mp4")!)
+    )
+  }
+}

@@ -115,8 +115,14 @@ public class VideoModel: ObservableObject {
     player.pause()
   }
   
-  public func seek(to: Double) async {
-    await player.seek(to: CMTimeMakeWithSeconds(to, preferredTimescale: 1000))
+  public func seekTo(percentage: Float) async {
+    isEditingCurrentTime = true
+    currentProgress = percentage
+    
+    Task {
+      let sec = Double(percentage * Float(duration))
+      await player.seek(to: CMTimeMakeWithSeconds(sec, preferredTimescale: 1000))
+    }
   }
 }
 
