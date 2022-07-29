@@ -40,10 +40,6 @@ public struct BXVideoPlayer: View {
   
   @ObservedObject var model: VideoModel
   
-  // Player width and height
-//  @State var width: CGFloat = UIScreen.width
-//  @State var height: CGFloat = UIScreen.height
-  
   var width: CGFloat { UIScreen.width }
   var height: CGFloat { UIScreen.height }
   
@@ -96,67 +92,12 @@ public struct BXVideoPlayer: View {
         }
       }
   }
-  
-  func makePlayer() -> some View {
-    ZStack(alignment: .center) {
-      Color.yellow.border(Color.red, width: 6)
-      VStack {
-        Spacer()
-        Text("Hello")
-      }
-      
-//        Color.blue.edgesIgnoringSafeArea(.all)
-      
-//        VideoPlayerLayer(model: model)
-//          .frame(
-//            width: contentWidth,
-//            height: contentHeight
-//          )
-//
-//        ControlsLayer(model: model)
-//          .frame(
-//            width: proxy.size.width,
-//            height: isPortrait ? UIScreen.width / model.ratio : UIScreen.height
-//          )
-//          .border(Color.orange, width: 4)
-//
-//        GestureLayer()
-//          .frame(
-//            width: proxy.size.width,
-//            height: isPortrait ? UIScreen.width / model.ratio : UIScreen.height
-//          )
-    }
-    .frame(height: UIScreen.height)
-//      .ignoresSafeArea(edges: [.top, .bottom])
-    .border(Color.blue, width: 6)
-//      .frame(maxHeight: .infinity)
-    
-//      .onRotate {
-//        if $0 == .portrait {
-//          print("Portrait")
-//
-//          if UIScreen.width > UIScreen.height {
-//            width = UIScreen.height
-//            height = width / model.ratio
-//          }
-//        }
-//        else if ($0 == .landscapeLeft) || ($0 == .landscapeRight) {
-//          print("Landscape")
-//
-//          if UIScreen.width < UIScreen.height {
-//            height = UIScreen.width
-//            width = height * model.ratio
-//          }
-//        }
-//        print("w: \(width) h: \(height)")
-//      }
-  }
 }
 
-//struct BXVideoPlayer_Previews: PreviewProvider {
-//  static var previews: some View {
-//    BXVideoPlayer(
-//      model: VideoModel(url: URL(string: "https://free-video.boxueio.com/h-task-local-storage-basic.mp4")!)
-//    )
-//  }
-//}
+struct BXVideoPlayer_Previews: PreviewProvider {
+  static var previews: some View {
+    BXVideoPlayer(
+      model: VideoModel(url: URL(string: "https://free-video.boxueio.com/h-task-local-storage-basic.mp4")!)
+    )
+  }
+}
