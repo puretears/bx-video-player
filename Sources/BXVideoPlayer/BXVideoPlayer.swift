@@ -42,12 +42,14 @@ public struct BXVideoPlayer: View {
   var height: CGFloat { UIScreen.height }
   
   var isPortrait: Bool {
-    return horizontalSizeClass == .compact && verticalSizeClass == .regular
+    return (horizontalSizeClass == .compact && verticalSizeClass == .regular) ||
+      model.playerOrientation == .portrait
   }
   
   var isLandscape: Bool {
     return (horizontalSizeClass == .regular && verticalSizeClass == .compact) ||
-    (horizontalSizeClass == .compact && verticalSizeClass == .compact)
+      (horizontalSizeClass == .compact && verticalSizeClass == .compact) ||
+      model.playerOrientation == .landscape
   }
   
   var contentWidth: CGFloat {
