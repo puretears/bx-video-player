@@ -9,8 +9,6 @@ import SwiftUI
 import AVKit
 
 public extension UIScreen {
-  
-  
   static var width: CGFloat {
     UIApplication.shared.connectedScenes
       .compactMap { scene -> UIWindow? in
@@ -45,6 +43,11 @@ public struct BXVideoPlayer: View {
   
   var isPortrait: Bool {
     return horizontalSizeClass == .compact && verticalSizeClass == .regular
+  }
+  
+  var isLandscape: Bool {
+    return (horizontalSizeClass == .regular && verticalSizeClass == .compact) ||
+    (horizontalSizeClass == .compact && verticalSizeClass == .compact)
   }
   
   var contentWidth: CGFloat {
@@ -92,7 +95,7 @@ public struct BXVideoPlayer: View {
       }
     }
     .onAppear {
-      if UIScreen.isLandscape {
+      if isLandscape {
         model.playerOrientation = .landscape
       }
       else {
@@ -100,7 +103,7 @@ public struct BXVideoPlayer: View {
       }
     }
     .onRotate { _ in
-      if UIScreen.isLandscape {
+      if isLandscape {
         model.playerOrientation = .landscape
       }
       else {

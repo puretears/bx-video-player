@@ -12,8 +12,18 @@ struct ControlsLayer: View {
   @ObservedObject var model: VideoModel
   @State var hPadding: CGFloat = 15
   
+  @Environment(\.presentationMode) var presentationMode
   @Environment(\.verticalSizeClass) var verticalSizeClass: UserInterfaceSizeClass?
   @Environment(\.horizontalSizeClass) var horizontalSizeClass: UserInterfaceSizeClass?
+  
+  var isPortrait: Bool {
+    return horizontalSizeClass == .compact && verticalSizeClass == .regular
+  }
+  
+  var isLandscape: Bool {
+    return (horizontalSizeClass == .regular && verticalSizeClass == .compact) ||
+    (horizontalSizeClass == .compact && verticalSizeClass == .compact)
+  }
   
   public init(model: VideoModel) {
     self.model = model
@@ -40,11 +50,7 @@ extension ControlsLayer {
      └───────┴────────────────────┴────────────────────┘
      */
     HStack {
-      Button(action: {
-        
-      }, label: {
-        Image(systemName: "chevron.backward")
-      })
+      makeBackButton()
       
       Text("Title")
       
@@ -86,6 +92,32 @@ extension ControlsLayer {
 }
 
 extension ControlsLayer {
+  /// Top controls
+  func makeBackButton() -> some View {
+    Button(action: {
+      if isPortrait {
+        presentationMode.wrappedValue.dismiss()
+      }
+      else { // Landscape
+        model.playerOrientation = .portrait
+        
+        if #available(iOS 16.0, *) {
+          let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene
+          windowScene?.requestGeometryUpdate(.iOS(interfaceOrientations: .portrait))
+        } else {
+          // Fallback on earlier versions
+          UIDevice.current.setValue(
+            UIInterfaceOrientation.portrait.rawValue,
+            forKey: "orientation"
+          )
+        }
+      }
+    }, label: {
+      Image(systemName: "chevron.backward")
+    })
+  }
+  
+  /// Bottom controls
   func makePlayButton() -> some View {
     Button(action: {
       if model.isPlaying {
@@ -94,7 +126,6 @@ extension ControlsLayer {
       else {
         model.play()
       }
-      
     }, label: {
       if model.isPlaying {
         Image(systemName: "pause.fill")
