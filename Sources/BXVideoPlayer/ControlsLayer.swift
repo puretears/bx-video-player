@@ -17,12 +17,11 @@ struct ControlsLayer: View {
   @Environment(\.horizontalSizeClass) var horizontalSizeClass: UserInterfaceSizeClass?
   
   var isPortrait: Bool {
-    return (horizontalSizeClass == .compact && verticalSizeClass == .regular)
+    return verticalSizeClass == .regular
   }
   
   var isLandscape: Bool {
-    return (horizontalSizeClass == .regular && verticalSizeClass == .compact) ||
-    (horizontalSizeClass == .compact && verticalSizeClass == .compact)
+    return verticalSizeClass == .compact
   }
   
   public init(model: VideoModel) {
@@ -70,10 +69,10 @@ extension ControlsLayer {
     }
     .frame(height: 44)
     .foregroundColor(.white)
-    .overlay(
-      Rectangle().foregroundColor(Color.green).opacity(0.7)
-        .allowsHitTesting(false)
-    )
+//    .overlay(
+//      Rectangle().foregroundColor(Color.green).opacity(0.7)
+//        .allowsHitTesting(false)
+//    )
   }
   
   func makeBottomBar() -> some View {
@@ -85,10 +84,10 @@ extension ControlsLayer {
       makeFullscreenToggle()
     }
     .frame(height: 44)
-    .overlay(
-      Rectangle().foregroundColor(Color.green).opacity(0.7)
-        .allowsHitTesting(false)
-    )
+//    .overlay(
+//      Rectangle().foregroundColor(Color.green).opacity(0.7)
+//        .allowsHitTesting(false)
+//    )
   }
 }
 
@@ -96,6 +95,8 @@ extension ControlsLayer {
   /// Top controls
   func makeBackButton() -> some View {
     Button(action: {
+      print("Back")
+      
       if isPortrait || model.playerOrientation == .portrait {
         presentationMode.wrappedValue.dismiss()
       }
@@ -161,6 +162,7 @@ extension ControlsLayer {
   
   func makeFullscreenToggle() -> some View {
     Button(action: {
+      print("Toggle fullscreen.")
       if isLandscape || model.playerOrientation == .landscape {
         model.playerOrientation = .portrait
         
@@ -175,7 +177,7 @@ extension ControlsLayer {
           )
         }
       }
-      else {
+      else if isPortrait || model.playerOrientation == .portrait {
         model.playerOrientation = .landscape
         
         if #available(iOS 16.0, *) {
@@ -189,6 +191,8 @@ extension ControlsLayer {
           )
         }
       }
+      
+      print("\(verticalSizeClass!)")
     }, label: {
       Image(systemName: "arrow.up.left.and.arrow.down.right")
     })

@@ -42,14 +42,12 @@ public struct BXVideoPlayer: View {
   var height: CGFloat { UIScreen.height }
   
   var isPortrait: Bool {
-    return (horizontalSizeClass == .compact && verticalSizeClass == .regular) ||
-      model.playerOrientation == .portrait
+    return verticalSizeClass == .regular
   }
   
   var isLandscape: Bool {
-    return (horizontalSizeClass == .regular && verticalSizeClass == .compact) ||
-      (horizontalSizeClass == .compact && verticalSizeClass == .compact) ||
-      model.playerOrientation == .landscape
+    print("\(verticalSizeClass!)")
+    return verticalSizeClass == .compact
   }
   
   var contentWidth: CGFloat {
@@ -96,22 +94,49 @@ public struct BXVideoPlayer: View {
         }
       }
     }
-    .onAppear {
-      if isLandscape {
-        model.playerOrientation = .landscape
+//    .onAppear {
+//      if isLandscape {
+//        model.playerOrientation = .landscape
+//      }
+//      else {
+//        model.playerOrientation = .portrait
+//      }
+//    }
+//    .onRotate {
+//      handleRotation(orien: $0)
+//    }
+  }
+  
+  /**
+   Before iOS 15, the notification mechanism is
+   Rotation -> Updating layout -> Notification. In the callback,
+   we get the current device orientation after rotation.
+   
+   But iOS 16 and later, the mechansim changes to
+   Rotation -> Notification -> Update layout. So we got the device
+   orientation before rotation in the callback.
+   */
+  func handleRotation(orien: UIDeviceOrientation) {
+    if orien != .unknown {
+      if #available(iOS 16.0, *) {
+        if isLandscape {
+          // Rotate from landscape
+          model.playerOrientation = .portrait
+        }
+        else if isPortrait {
+          model.playerOrientation = .landscape
+        }
       }
       else {
-        model.playerOrientation = .portrait
-      }
-    }
-    .onRotate { _ in
-      if isLandscape {
-        model.playerOrientation = .landscape
-      }
-      else {
-        model.playerOrientation = .portrait
-      }
-    }
+        if isLandscape {
+          // Rotate from landscape
+          model.playerOrientation = .landscape
+        }
+        else if isPortrait {
+          model.playerOrientation = .portrait
+        }
+      } // if #available(iOS 16.0, *)
+    } // End of if $0 != .unknown
   }
 }
 
