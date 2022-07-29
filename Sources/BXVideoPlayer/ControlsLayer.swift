@@ -17,13 +17,12 @@ struct ControlsLayer: View {
   @Environment(\.horizontalSizeClass) var horizontalSizeClass: UserInterfaceSizeClass?
   
   var isPortrait: Bool {
-    return (horizontalSizeClass == .compact && verticalSizeClass == .regular) || model.playerOrientation == .portrait
+    return (horizontalSizeClass == .compact && verticalSizeClass == .regular)
   }
   
   var isLandscape: Bool {
     return (horizontalSizeClass == .regular && verticalSizeClass == .compact) ||
-    (horizontalSizeClass == .compact && verticalSizeClass == .compact) ||
-    model.playerOrientation == .landscape
+    (horizontalSizeClass == .compact && verticalSizeClass == .compact)
   }
   
   public init(model: VideoModel) {
@@ -97,7 +96,7 @@ extension ControlsLayer {
   /// Top controls
   func makeBackButton() -> some View {
     Button(action: {
-      if isPortrait {
+      if isPortrait || model.playerOrientation == .portrait {
         presentationMode.wrappedValue.dismiss()
       }
       else { // Landscape
@@ -162,7 +161,7 @@ extension ControlsLayer {
   
   func makeFullscreenToggle() -> some View {
     Button(action: {
-      if isLandscape {
+      if isLandscape || model.playerOrientation == .landscape {
         model.playerOrientation = .portrait
         
         if #available(iOS 16.0, *) {
