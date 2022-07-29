@@ -72,6 +72,7 @@ extension ControlsLayer {
     .foregroundColor(.white)
     .overlay(
       Rectangle().foregroundColor(Color.green).opacity(0.7)
+        .allowsHitTesting(false)
     )
   }
   
