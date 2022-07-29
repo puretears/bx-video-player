@@ -46,7 +46,6 @@ public struct BXVideoPlayer: View {
   }
   
   var isLandscape: Bool {
-    print("\(verticalSizeClass!)")
     return verticalSizeClass == .compact
   }
   
@@ -94,49 +93,6 @@ public struct BXVideoPlayer: View {
         }
       }
     }
-//    .onAppear {
-//      if isLandscape {
-//        model.playerOrientation = .landscape
-//      }
-//      else {
-//        model.playerOrientation = .portrait
-//      }
-//    }
-//    .onRotate {
-//      handleRotation(orien: $0)
-//    }
-  }
-  
-  /**
-   Before iOS 15, the notification mechanism is
-   Rotation -> Updating layout -> Notification. In the callback,
-   we get the current device orientation after rotation.
-   
-   But iOS 16 and later, the mechansim changes to
-   Rotation -> Notification -> Update layout. So we got the device
-   orientation before rotation in the callback.
-   */
-  func handleRotation(orien: UIDeviceOrientation) {
-    if orien != .unknown {
-      if #available(iOS 16.0, *) {
-        if isLandscape {
-          // Rotate from landscape
-          model.playerOrientation = .portrait
-        }
-        else if isPortrait {
-          model.playerOrientation = .landscape
-        }
-      }
-      else {
-        if isLandscape {
-          // Rotate from landscape
-          model.playerOrientation = .landscape
-        }
-        else if isPortrait {
-          model.playerOrientation = .portrait
-        }
-      } // if #available(iOS 16.0, *)
-    } // End of if $0 != .unknown
   }
 }
 

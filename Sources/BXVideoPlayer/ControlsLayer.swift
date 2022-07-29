@@ -69,10 +69,10 @@ extension ControlsLayer {
     }
     .frame(height: 44)
     .foregroundColor(.white)
-//    .overlay(
-//      Rectangle().foregroundColor(Color.green).opacity(0.7)
-//        .allowsHitTesting(false)
-//    )
+    .overlay(
+      Rectangle().foregroundColor(Color.green).opacity(0.7)
+        .allowsHitTesting(false)
+    )
   }
   
   func makeBottomBar() -> some View {
@@ -84,10 +84,10 @@ extension ControlsLayer {
       makeFullscreenToggle()
     }
     .frame(height: 44)
-//    .overlay(
-//      Rectangle().foregroundColor(Color.green).opacity(0.7)
-//        .allowsHitTesting(false)
-//    )
+    .overlay(
+      Rectangle().foregroundColor(Color.green).opacity(0.7)
+        .allowsHitTesting(false)
+    )
   }
 }
 
@@ -95,8 +95,6 @@ extension ControlsLayer {
   /// Top controls
   func makeBackButton() -> some View {
     Button(action: {
-      print("Back")
-      
       if isPortrait || model.playerOrientation == .portrait {
         presentationMode.wrappedValue.dismiss()
       }
@@ -160,9 +158,19 @@ extension ControlsLayer {
     }
   }
   
+  /**
+   **Note**
+   
+   Before iOS 15, the notification mechanism is
+   Rotation -> Updating layout -> Notification. In the callback,
+   we get the current device orientation after rotation.
+   
+   But iOS 16 and later, the mechansim changes to
+   Rotation -> Notification -> Update layout. So we got the device
+   orientation before rotation in the callback.
+   */
   func makeFullscreenToggle() -> some View {
     Button(action: {
-      print("Toggle fullscreen.")
       if isLandscape || model.playerOrientation == .landscape {
         model.playerOrientation = .portrait
         
@@ -191,8 +199,6 @@ extension ControlsLayer {
           )
         }
       }
-      
-      print("\(verticalSizeClass!)")
     }, label: {
       Image(systemName: "arrow.up.left.and.arrow.down.right")
     })
