@@ -17,6 +17,11 @@ enum VideoInfo {
   case ratio(CGFloat)
 }
 
+enum PlayerOrientation {
+  case portrait
+  case landscape
+}
+
 enum VideoError: Error {
   case nonPlayable
   case emptyTrack
@@ -44,6 +49,8 @@ public class VideoModel: ObservableObject {
   
   @Published public var currentTime: CGFloat = 0
   @Published public var currentProgress: Float = 0
+  
+  var playerOrientation: PlayerOrientation = .portrait
   
   private var timeObserver: Any?
   private var subscriptions: Set<AnyCancellable> = []

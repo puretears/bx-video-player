@@ -129,7 +129,9 @@ extension ControlsLayer {
   
   func makeFullscreenToggle() -> some View {
     Button(action: {
-      if UIScreen.isLandscape {
+      if model.playerOrientation == .landscape {
+        model.playerOrientation = .portrait
+        
         if #available(iOS 16.0, *) {
           let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene
           windowScene?.requestGeometryUpdate(.iOS(interfaceOrientations: .portrait))
@@ -142,6 +144,8 @@ extension ControlsLayer {
         }
       }
       else {
+        model.playerOrientation = .landscape
+        
         if #available(iOS 16.0, *) {
           let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene
           windowScene?.requestGeometryUpdate(.iOS(interfaceOrientations: .landscapeRight))

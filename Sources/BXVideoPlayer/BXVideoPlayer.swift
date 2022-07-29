@@ -70,27 +70,43 @@ public struct BXVideoPlayer: View {
   }
   
   public var body: some View {
-      ZStack {
-        Color.yellow
-          .border(Color.red, width: 6)
-          .ignoresSafeArea()
-        
-        // video
-        GeometryReader { _ in
-          ZStack {
-            VideoPlayerLayer(model: model)
-              .frame(width: contentWidth, height: contentHeight)
-              .border(Color.red, width: 4)
-            
-            // control
-            ControlsLayer(model: model)
-              .border(Color.brown, width: 6)
-            
-            GestureLayer()
-              .border(Color.green, width: 6)
-          }
+    ZStack {
+      Color.yellow
+        .border(Color.red, width: 6)
+        .ignoresSafeArea()
+      
+      // video
+      GeometryReader { _ in
+        ZStack {
+          VideoPlayerLayer(model: model)
+            .frame(width: contentWidth, height: contentHeight)
+            .border(Color.red, width: 4)
+          
+          // control
+          ControlsLayer(model: model)
+            .border(Color.brown, width: 6)
+          
+          GestureLayer()
+            .border(Color.green, width: 6)
         }
       }
+    }
+    .onAppear {
+      if UIScreen.isLandscape {
+        model.playerOrientation = .landscape
+      }
+      else {
+        model.playerOrientation = .portrait
+      }
+    }
+    .onRotate { _ in
+      if UIScreen.isLandscape {
+        model.playerOrientation = .landscape
+      }
+      else {
+        model.playerOrientation = .portrait
+      }
+    }
   }
 }
 
