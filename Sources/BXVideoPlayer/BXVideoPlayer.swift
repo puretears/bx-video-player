@@ -69,6 +69,14 @@ public struct BXVideoPlayer: View {
   
   public init(model: VideoModel) {
     self.model = model
+    
+    // we need this to use Picture in Picture
+    let audioSession = AVAudioSession.sharedInstance()
+    do {
+        try audioSession.setCategory(.playback)
+    } catch {
+        print("Setting category to AVAudioSessionCategoryPlayback failed.")
+    }
   }
   
   public var body: some View {
@@ -82,15 +90,20 @@ public struct BXVideoPlayer: View {
         ZStack {
           VideoPlayerLayer(model: model)
             .frame(width: contentWidth, height: contentHeight)
-            .border(Color.red, width: 4)
           
           // control
           ControlsLayer(model: model)
-            .border(Color.brown, width: 6)
           
-          GestureLayer()
-            .border(Color.green, width: 6)
+//          GestureLayer()
         }
+      }
+    }
+    .onRotate {
+      if $0 == .portrait {
+        model.playerOrientation = .portrait
+      }
+      else if $0 == .landscapeLeft || $0 == .landscapeRight {
+        model.playerOrientation = .landscape
       }
     }
   }
@@ -99,7 +112,10 @@ public struct BXVideoPlayer: View {
 struct BXVideoPlayer_Previews: PreviewProvider {
   static var previews: some View {
     BXVideoPlayer(
-      model: VideoModel(url: URL(string: "https://free-video.boxueio.com/h-task-local-storage-basic.mp4")!)
+      model: VideoModel(
+        url: URL(string: "https://free-video.boxueio.com/h-task-local-storage-basic.mp4")!,
+        title: "The task local storage"
+      )
     )
   }
 }

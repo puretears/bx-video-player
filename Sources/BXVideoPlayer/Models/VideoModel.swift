@@ -42,6 +42,7 @@ public class VideoModel: ObservableObject {
   var player: AVPlayer = AVPlayer()
   
   @Published public var url: URL
+  @Published public var title: String
   @Published public var duration: Double = 1.0
   @Published public var ratio: CGFloat = 16 / 9
   @Published public var isPlaying: Bool = false
@@ -49,6 +50,8 @@ public class VideoModel: ObservableObject {
   
   @Published public var currentTime: CGFloat = 0
   @Published public var currentProgress: Float = 0
+  
+  @Published public var isPipMode = false
   
   var playerOrientation: PlayerOrientation = .portrait
   
@@ -61,8 +64,9 @@ public class VideoModel: ObservableObject {
     }
   }
   
-  public init(url: URL) {
+  public init(url: URL, title: String) {
     self.url = url
+    self.title = title
     player.automaticallyWaitsToMinimizeStalling = false
     
     Task {

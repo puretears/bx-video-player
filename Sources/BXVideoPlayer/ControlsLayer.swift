@@ -36,7 +36,6 @@ struct ControlsLayer: View {
       
       makeBottomBar()
     }
-    .padding(.horizontal, horizontalSizeClass == .compact && verticalSizeClass == .regular ? 15 : 0)
   }
 }
 
@@ -48,35 +47,48 @@ extension ControlsLayer {
      │ Back  │       Title        │     Operations     │
      └───────┴────────────────────┴────────────────────┘
      */
-    HStack {
+    HStack(spacing: 0) {
       makeBackButton()
       
-      Text("Title")
+      Text(model.title)
+        .font(.callout)
+        .lineLimit(1)
+        .truncationMode(.tail)
+        .foregroundColor(.white)
       
       Spacer()
       
       Button(action: {
-        
+        print("Toggle pip")
+        withAnimation {
+          model.isPipMode.toggle()
+        }
       }, label: {
         Image(systemName: "pip")
+          .frame(width: 44, height: 44)
+          .foregroundColor(.white)
+          .background(Color.green)
       })
       
       Button(action: {
         
       }, label: {
         Image("ellipse", bundle: .module).resizable().frame(width: 20, height: 20)
+          .frame(width: 44, height: 44)
+          .foregroundColor(.white)
+          .background(Color.green)
       })
     }
     .frame(height: 44)
     .foregroundColor(.white)
-    .overlay(
-      Rectangle().foregroundColor(Color.green).opacity(0.7)
-        .allowsHitTesting(false)
-    )
+//    .overlay(
+//      Rectangle().foregroundColor(Color.green).opacity(0.7)
+//        .allowsHitTesting(false)
+//    )
   }
   
   func makeBottomBar() -> some View {
-    HStack {
+    HStack(spacing: 0) {
       makePlayButton()
       
       makeProgressBar()
@@ -84,10 +96,10 @@ extension ControlsLayer {
       makeFullscreenToggle()
     }
     .frame(height: 44)
-    .overlay(
-      Rectangle().foregroundColor(Color.green).opacity(0.7)
-        .allowsHitTesting(false)
-    )
+//    .overlay(
+//      Rectangle().foregroundColor(Color.green).opacity(0.7)
+//        .allowsHitTesting(false)
+//    )
   }
 }
 
@@ -98,7 +110,7 @@ extension ControlsLayer {
       if isPortrait || model.playerOrientation == .portrait {
         presentationMode.wrappedValue.dismiss()
       }
-      else { // Landscape
+      else if isLandscape || model.playerOrientation == .landscape { // Landscape
         model.playerOrientation = .portrait
         
         if #available(iOS 16.0, *) {
@@ -114,12 +126,16 @@ extension ControlsLayer {
       }
     }, label: {
       Image(systemName: "chevron.backward")
+        .frame(width: 44, height: 44)
+        .foregroundColor(.white)
+        .background(Color.green)
     })
   }
   
   /// Bottom controls
   func makePlayButton() -> some View {
     Button(action: {
+      print("Playing")
       if model.isPlaying {
         model.pause()
       }
@@ -127,15 +143,19 @@ extension ControlsLayer {
         model.play()
       }
     }, label: {
-      if model.isPlaying {
-        Image(systemName: "pause.fill")
+      Group {
+        if model.isPlaying {
+          Image(systemName: "pause.fill")
+        }
+        else {
+          Image(systemName: "play.fill")
+        }
       }
-      else {
-        Image(systemName: "play.fill")
-      }
-      
+      .frame(width: 44, height: 44)
+      .foregroundColor(.white)
+      .background(Color.green)
     })
-    .foregroundColor(.white)
+    
   }
   
   func makeProgressBar() -> some View {
@@ -201,15 +221,20 @@ extension ControlsLayer {
       }
     }, label: {
       Image(systemName: "arrow.up.left.and.arrow.down.right")
+        .frame(width: 44, height: 44)
+        .foregroundColor(.white)
+        .background(Color.green)
     })
-    .foregroundColor(.white)
   }
 }
 
 struct ControlsLayer_Previews: PreviewProvider {
   static var previews: some View {
     BXVideoPlayer(
-      model: VideoModel(url: URL(string: "https://free-video.boxueio.com/h-task-local-storage-basic.mp4")!)
+      model: VideoModel(
+        url: URL(string: "https://free-video.boxueio.com/h-task-local-storage-basic.mp4")!,
+        title: "The task local storage - II"
+      )
     )
   }
 }
