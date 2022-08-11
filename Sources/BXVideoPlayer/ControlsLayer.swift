@@ -67,7 +67,6 @@ extension ControlsLayer {
         Image(systemName: "pip")
           .frame(width: 44, height: 44)
           .foregroundColor(.white)
-          .background(Color.green)
       })
       
       Button(action: {
@@ -76,15 +75,10 @@ extension ControlsLayer {
         Image("ellipse", bundle: .module).resizable().frame(width: 20, height: 20)
           .frame(width: 44, height: 44)
           .foregroundColor(.white)
-          .background(Color.green)
       })
     }
     .frame(height: 44)
     .foregroundColor(.white)
-//    .overlay(
-//      Rectangle().foregroundColor(Color.green).opacity(0.7)
-//        .allowsHitTesting(false)
-//    )
   }
   
   func makeBottomBar() -> some View {
@@ -96,10 +90,6 @@ extension ControlsLayer {
       makeFullscreenToggle()
     }
     .frame(height: 44)
-//    .overlay(
-//      Rectangle().foregroundColor(Color.green).opacity(0.7)
-//        .allowsHitTesting(false)
-//    )
   }
 }
 
@@ -128,7 +118,6 @@ extension ControlsLayer {
       Image(systemName: "chevron.backward")
         .frame(width: 44, height: 44)
         .foregroundColor(.white)
-        .background(Color.green)
     })
   }
   
@@ -153,7 +142,6 @@ extension ControlsLayer {
       }
       .frame(width: 44, height: 44)
       .foregroundColor(.white)
-      .background(Color.green)
     })
     
   }
@@ -223,7 +211,6 @@ extension ControlsLayer {
       Image(systemName: "arrow.up.left.and.arrow.down.right")
         .frame(width: 44, height: 44)
         .foregroundColor(.white)
-        .background(Color.green)
     })
   }
 }

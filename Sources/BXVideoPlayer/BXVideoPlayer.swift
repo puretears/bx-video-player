@@ -30,6 +30,25 @@ public extension UIScreen {
   static var isLandscape: Bool {
     UIDevice.current.orientation.isLandscape
   }
+  
+  static var br: CGFloat {
+    get {
+      UIApplication.shared.connectedScenes
+        .compactMap { scene -> UIWindow? in
+          (scene as? UIWindowScene)?.keyWindow
+        }
+        .first?
+        .screen.brightness ?? 0.5
+    }
+    set {
+      UIApplication.shared.connectedScenes
+        .compactMap { scene -> UIWindow? in
+          (scene as? UIWindowScene)?.keyWindow
+        }
+        .first?
+        .screen.brightness = newValue
+    }
+  }
 }
 
 fileprivate var pv: VideoPlayerLayer?
@@ -40,7 +59,6 @@ public struct BXVideoPlayer: View {
   @Environment(\.scenePhase) var scenePhase
   
   @ObservedObject var model: VideoModel
-//  @State var pv: VideoPlayerLayer?
   
   var width: CGFloat { UIScreen.width }
   var height: CGFloat { UIScreen.height }
@@ -73,6 +91,7 @@ public struct BXVideoPlayer: View {
   
   public init(model: VideoModel) {
     self.model = model
+    
     // we need this to use Picture in Picture
     let audioSession = AVAudioSession.sharedInstance()
     do {
@@ -84,22 +103,34 @@ public struct BXVideoPlayer: View {
   
   public var body: some View {
     ZStack {
-      Color.yellow
-        .border(Color.red, width: 6)
+      Color.black
         .ignoresSafeArea()
-      
+        
       // video
-      GeometryReader { _ in
+      GeometryReader { proxy in
         ZStack {
           VideoPlayerLayer(model: model) {
             pv = $0
           }
           .frame(width: contentWidth, height: contentHeight)
+#if DEBUG
+.overlay {
+  makeDebugFrame(color: .red, label: "Video player")
+}
+#endif
           
           // control
           ControlsLayer(model: model)
           
-          GestureLayer()
+          // Gesture
+          GestureLayer(model: model, area: proxy.size)
+#if DEBUG
+.overlay {
+  makeDebugFrame(color: .brown, label: "Gesture area")
+}
+#endif
+          .padding(.top, 44)
+          .padding(.bottom, 44)
         }
       }
     }
@@ -112,13 +143,24 @@ public struct BXVideoPlayer: View {
       }
     }
     .onChange(of: scenePhase) { newPhase in
+      // Backgroud audio playing
       if newPhase == .active {
-        print("Active")
         pv?.connect()
       } else if newPhase == .background {
-        print("Background")
         pv?.disconnect()
       }
+    }
+  }
+  
+  private func makeDebugFrame(color: Color, label: String) -> some View {
+    ZStack(alignment: .topLeading) {
+      Rectangle()
+        .stroke(color, lineWidth: 2)
+      
+      Text(label)
+        .foregroundColor(color)
+        .font(.caption2)
+        .padding([.top, .leading], 5)
     }
   }
 }

@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 import AVFoundation
+import UIKit
 
 private let ERROR_VIDEO_LENGTH = 104.0
 private let ERROR_VIDEO_RATIO: CGFloat = 1.78
@@ -26,6 +27,7 @@ enum VideoError: Error {
   case nonPlayable
   case emptyTrack
 }
+
 extension CGFloat {
   func asPlayerString() -> String {
     let formatter = DateComponentsFormatter()
@@ -49,7 +51,10 @@ public class VideoModel: ObservableObject {
   @Published public var isEditingCurrentTime = false
   
   @Published public var currentTime: CGFloat = 0
-  @Published public var currentProgress: Float = 0
+  @Published public var currentProgress: CGFloat = 0
+  
+  @Published public var volume: CGFloat = 0
+  @Published public var brightness: CGFloat = UIScreen.br
   
   @Published public var isPipMode = false
   
@@ -67,6 +72,8 @@ public class VideoModel: ObservableObject {
   public init(url: URL, title: String) {
     self.url = url
     self.title = title
+    
+    volume = CGFloat(player.volume)
     player.automaticallyWaitsToMinimizeStalling = false
     
     Task {
@@ -88,12 +95,11 @@ public class VideoModel: ObservableObject {
       forInterval: CMTime(value: 1, timescale: 600),
       queue: .main,
       using: { [weak self] time in
-        // TODO: Update playing progress
         guard let self = self else { return }
         
         if !self.isEditingCurrentTime {
           self.currentTime = time.seconds
-          self.currentProgress = Float(self.currentTime / self.duration)
+          self.currentProgress = self.currentTime / self.duration
         }
       }
     )
@@ -125,8 +131,23 @@ public class VideoModel: ObservableObject {
       }
     }
     
+    currentTime = 0
+    currentProgress = 0
+    
     let item = AVPlayerItem(asset: asset)
     player.replaceCurrentItem(with: item)
+  }
+  
+  @MainActor
+  public func seekTo(percentage: CGFloat) async {
+    isEditingCurrentTime = true
+    currentProgress = percentage
+    currentTime = CGFloat(percentage) * duration
+    
+    Task {
+      let sec = Double(percentage * duration)
+      await player.seek(to: CMTimeMakeWithSeconds(sec, preferredTimescale: 1000))
+    }
   }
   
   public func play() {
@@ -137,16 +158,35 @@ public class VideoModel: ObservableObject {
     player.pause()
   }
   
-  @MainActor
-  public func seekTo(percentage: Float) async {
-    isEditingCurrentTime = true
-    currentProgress = percentage
-    currentTime = CGFloat(percentage) * duration
+  public func adjustVolume(_ diff: CGFloat) {
+    volume += diff
     
-    Task {
-      let sec = Double(percentage * Float(duration))
-      await player.seek(to: CMTimeMakeWithSeconds(sec, preferredTimescale: 1000))
+    if volume < 0 { volume = 0 }
+    else if volume > 1 { volume = 1 }
+    
+    player.volume = Float(volume)
+  }
+  
+  public func adjustBrightness(_ diff: CGFloat) {
+    brightness += diff
+    
+    if brightness < 0 { brightness = 0 }
+    else if brightness > 1 { brightness = 1 }
+    
+    UIScreen.br = brightness
+  }
+  
+  public func adjustProgress(_ diff: CGFloat) {
+    currentTime += diff
+    
+    if currentTime < 0 {
+      currentTime = 0
     }
+    else if currentTime > duration {
+      currentTime = duration
+    }
+    
+    currentProgress = currentTime / duration
   }
 }
 
