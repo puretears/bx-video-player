@@ -36,6 +36,7 @@ struct ControlsLayer: View {
       
       makeBottomBar()
     }
+    .opacity(model.isDisplayingControl ? 1 : 0)
   }
 }
 

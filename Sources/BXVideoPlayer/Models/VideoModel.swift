@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 import AVFoundation
+import MediaPlayer
 import UIKit
 
 private let ERROR_VIDEO_LENGTH = 104.0
@@ -58,8 +59,11 @@ public class VideoModel: ObservableObject {
   
   @Published public var isPipMode = false
   
+  @Published public var isDisplayingControl = true
+  
   var playerOrientation: PlayerOrientation = .portrait
   
+  var nowPlayingInfo = [String : Any]()
   private var timeObserver: Any?
   private var subscriptions: Set<AnyCancellable> = []
   
@@ -78,14 +82,24 @@ public class VideoModel: ObservableObject {
     
     Task {
       try? await setCurrentItem(url: url)
+      setupRemoteTransportControls()
+      setupNowPlaying()
     }
     
     player.publisher(for: \.timeControlStatus)
       .sink { [weak self] status in
         switch status {
         case .playing:
+          #if DEBUG
+          print("Play the video")
+          #endif
+          self?.commandCenterPlay()
           self?.isPlaying = true
         default:
+          #if DEBUG
+          print("Stop playing the video")
+          #endif
+          self?.commandCenterPause()
           self?.isPlaying = false
         }
       }
@@ -103,6 +117,8 @@ public class VideoModel: ObservableObject {
         }
       }
     )
+    
+    
   }
   
   @MainActor
@@ -147,6 +163,9 @@ public class VideoModel: ObservableObject {
     Task {
       let sec = Double(percentage * duration)
       await player.seek(to: CMTimeMakeWithSeconds(sec, preferredTimescale: 1000))
+      
+      nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentTime
+      MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
     }
   }
   
@@ -187,6 +206,10 @@ public class VideoModel: ObservableObject {
     }
     
     currentProgress = currentTime / duration
+    
+    Task {
+      await player.seek(to: CMTimeMakeWithSeconds(currentTime, preferredTimescale: 1000))
+    }
   }
 }
 
@@ -213,5 +236,101 @@ extension VideoModel {
     else {
       throw VideoError.emptyTrack
     }
+  }
+}
+
+// Remote control
+extension VideoModel {
+  func setupRemoteTransportControls() {
+    let commandCenter = MPRemoteCommandCenter.shared()
+    
+    commandCenter.playCommand.addTarget {
+      [unowned self] event in
+      if !self.isPlaying {
+        self.play()
+        return .success
+      }
+      return .commandFailed
+    }
+    
+    commandCenter.pauseCommand.addTarget {
+      [unowned self] event in
+      if self.isPlaying {
+        self.pause()
+        return .success
+      }
+      return .commandFailed
+    }
+    
+    commandCenter.changePlaybackPositionCommand.addTarget {
+      [unowned self] event in
+      let ev = event as! MPChangePlaybackPositionCommandEvent
+      
+      Task {
+        await self.seekTo(percentage: (CGFloat(ev.positionTime)) / duration)
+      }
+      
+      return .success
+    }
+    
+    commandCenter.skipForwardCommand.addTarget {
+      [weak self] event in
+      #if DEBUG
+      print("Forward 10 sec from command center.")
+      #endif
+      
+      self?.adjustProgress(10)
+      self?.updateCommandCenterProgress()
+      
+      return .success
+    }
+    
+    commandCenter.skipBackwardCommand.addTarget {
+      [weak self] event in
+      #if DEBUG
+      print("Backward 10 sec from command center.")
+      #endif
+      
+      self?.adjustProgress(-10)
+      self?.updateCommandCenterProgress()
+      
+      return .success
+    }
+  }
+  
+  // Define Now Playing Info
+  func setupNowPlaying() {
+    nowPlayingInfo[MPMediaItemPropertyTitle] = title
+    
+    if let image = UIImage(named: "lockscreen") {
+      nowPlayingInfo[MPMediaItemPropertyArtwork] =
+      MPMediaItemArtwork(boundsSize: image.size) {
+        size in
+        return image
+      }
+    }
+    
+    nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentTime
+    nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = duration
+    nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 1
+    // Set the metadata
+    MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+  }
+  
+  func updateCommandCenterProgress() {
+    nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentTime
+    MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+  }
+  
+  func commandCenterPause() {
+    nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentTime
+    nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 0
+    MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+  }
+
+  func commandCenterPlay() {
+    nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentTime
+    nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 1
+    MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
   }
 }

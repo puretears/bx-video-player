@@ -95,9 +95,9 @@ public struct BXVideoPlayer: View {
     // we need this to use Picture in Picture
     let audioSession = AVAudioSession.sharedInstance()
     do {
-        try audioSession.setCategory(.playback)
+      try audioSession.setCategory(.playback)
     } catch {
-        print("Setting category to AVAudioSessionCategoryPlayback failed.")
+      print("Setting category to AVAudioSessionCategoryPlayback failed.")
     }
   }
   

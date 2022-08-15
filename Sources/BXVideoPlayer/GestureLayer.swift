@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 enum DragOperation {
   case none
@@ -25,6 +26,11 @@ struct GestureLayer: View {
   @State private var volumeOpacity: CGFloat = 0
   @State private var progressOpacity: CGFloat = 0
   
+  // Timer used to hide the control UI automatically.
+  @State var threshold: Int = 4
+  @State var timer = Timer.publish(every: 1, on: .main, in: .common)
+  @State var connectedTimer: Cancellable?
+  
   var body: some View {
     ZStack {
       BrightnessIndicator(progress: $model.brightness)
@@ -40,6 +46,37 @@ struct GestureLayer: View {
         .opacity(progressOpacity)
       
       makeGestureArea()
+    }
+    .onTapGesture(count: 2) {
+      model.isPlaying ? model.pause() : model.play()
+      
+      if !model.isPlaying {
+#if DEBUG
+print("Video paused. Displaying control UI.")
+#endif
+        displayControlUI()
+      }
+    }
+    .onTapGesture {
+      toggleControlUI()
+      
+      if model.isPlaying && model.isDisplayingControl {
+#if DEBUG
+print("Countdown to hiding control UI automatically.")
+#endif
+        restartTimer()
+      }
+    }
+    .onReceive(timer) { _ in
+      checkAndHideControlUI()
+    }
+    .onChange(of: model.isPlaying) {
+      if $0 && model.isDisplayingControl {
+#if DEBUG
+print("Start playing video. Countdown to hiding control UI automatically..")
+#endif
+        restartTimer()
+      }
     }
   }
   
@@ -123,6 +160,57 @@ print("xDiff: \(xDiff) yDiff: \(yDiff)")
       brightnessOpacity = 0
       volumeOpacity = 0
       progressOpacity = 0
+    }
+  }
+}
+
+extension GestureLayer {
+  func instantiateTimer() {
+    timer = Timer.publish(every: 1, on: .main, in: .common)
+    connectedTimer = timer.connect()
+  }
+  
+  func cancelTimer() {
+    connectedTimer?.cancel()
+  }
+  
+  func resetTimer() {
+    threshold = 4
+  }
+  
+  func restartTimer() {
+    resetTimer()
+    cancelTimer()
+    instantiateTimer()
+  }
+  
+  func toggleControlUI() {
+    withAnimation(.easeIn(duration: 0.3)) {
+      model.isDisplayingControl.toggle()
+    }
+  }
+  
+  func displayControlUI() {
+    withAnimation(.easeIn(duration: 0.3)) {
+      model.isDisplayingControl = true
+    }
+  }
+  
+  func hideControlUI() {
+    withAnimation(.easeIn(duration: 0.3)) {
+      model.isDisplayingControl = false
+    }
+  }
+  
+  func checkAndHideControlUI() {
+    threshold -= 1
+    
+    if threshold == 0 {
+      cancelTimer()
+      
+      if model.isPlaying {
+        hideControlUI()
+      }
     }
   }
 }
