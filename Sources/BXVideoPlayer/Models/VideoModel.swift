@@ -117,8 +117,6 @@ public class VideoModel: ObservableObject {
         }
       }
     )
-    
-    
   }
   
   @MainActor
@@ -157,24 +155,25 @@ public class VideoModel: ObservableObject {
   @MainActor
   public func seekTo(percentage: CGFloat) async {
     isEditingCurrentTime = true
+    
     currentProgress = percentage
     currentTime = CGFloat(percentage) * duration
     
     Task {
-      let sec = Double(percentage * duration)
-      await player.seek(to: CMTimeMakeWithSeconds(sec, preferredTimescale: 1000))
-      
-      nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentTime
-      MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+      await player.seek(to: CMTimeMakeWithSeconds(CGFloat(percentage) * currentTime, preferredTimescale: 1000))
     }
+    
+    updateCommandCenterProgress()
   }
   
   public func play() {
     player.play()
+    commandCenterPlay()
   }
   
   public func pause() {
     player.pause()
+    commandCenterPause()
   }
   
   public func adjustVolume(_ diff: CGFloat) {
@@ -266,9 +265,14 @@ extension VideoModel {
       [unowned self] event in
       let ev = event as! MPChangePlaybackPositionCommandEvent
       
+      self.currentTime = CGFloat(ev.positionTime)
+      self.currentProgress = self.currentTime / self.duration
+      
       Task {
-        await self.seekTo(percentage: (CGFloat(ev.positionTime)) / duration)
+        await player.seek(to: CMTimeMakeWithSeconds(self.currentTime, preferredTimescale: 1000))
       }
+      
+      self.updateCommandCenterProgress()
       
       return .success
     }
