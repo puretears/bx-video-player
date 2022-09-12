@@ -51,8 +51,6 @@ public extension UIScreen {
   }
 }
 
-fileprivate var pv: VideoPlayerLayer?
-
 public struct BXVideoPlayer: View {
   @Environment(\.verticalSizeClass) var verticalSizeClass: UserInterfaceSizeClass?
   @Environment(\.horizontalSizeClass) var horizontalSizeClass: UserInterfaceSizeClass?
@@ -89,13 +87,20 @@ public struct BXVideoPlayer: View {
     }
   }
   
-  public init(model: VideoModel) {
+  let controlActions: () -> Void
+  let gestureActions: () -> Void
+  
+  public init(model: VideoModel,
+              controlActions: @escaping () -> Void = {},
+              gestureActions: @escaping () -> Void = {}) {
     self.model = model
+    self.controlActions = controlActions
+    self.gestureActions = gestureActions
     
     // we need this to use Picture in Picture
     let audioSession = AVAudioSession.sharedInstance()
     do {
-      try audioSession.setCategory(.playback)
+      try audioSession.setCategory(.playback, mode: .moviePlayback)
     } catch {
       print("Setting category to AVAudioSessionCategoryPlayback failed.")
     }
@@ -109,21 +114,17 @@ public struct BXVideoPlayer: View {
       // video
       GeometryReader { proxy in
         ZStack {
-          VideoPlayerLayer(model: model) {
-            pv = $0
-          }
-          .frame(width: contentWidth, height: contentHeight)
+          VideoPlayerLayer(model: model)
 #if DEBUG
 .overlay {
   makeDebugFrame(color: .red, label: "Video player")
 }
 #endif
-          
           // control
-          ControlsLayer(model: model)
+          ControlsLayer(model: model, controlActions: controlActions)
           
           // Gesture
-          GestureLayer(model: model, area: proxy.size)
+          GestureLayer(model: model, area: proxy.size, gestureActions: gestureActions)
 #if DEBUG
 .overlay {
   makeDebugFrame(color: .brown, label: "Gesture area")
@@ -142,13 +143,8 @@ public struct BXVideoPlayer: View {
         model.playerOrientation = .landscape
       }
     }
-    .onChange(of: scenePhase) { newPhase in
-      // Backgroud audio playing
-      if newPhase == .active {
-        pv?.connect()
-      } else if newPhase == .background {
-        pv?.disconnect()
-      }
+    .onAppear {
+      model.playerOrientation = isPortrait ? .portrait : .landscape
     }
   }
   

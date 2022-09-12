@@ -28,21 +28,12 @@ class VideoPlayerView: UIView {
   }
 }
 
-fileprivate var pv: VideoPlayerView?
-
 struct VideoPlayerLayer: UIViewRepresentable {
   @ObservedObject var model: VideoModel
-  var configrator: (VideoPlayerLayer) -> Void
-  
-//  @State var pv: VideoPlayerView?
   
   func makeUIView(context: Context) -> VideoPlayerView {
     let view = VideoPlayerView()
     view.player = model.player
-    
-    pv = view
-    
-    configrator(self)
     
     Task {
       try? await model.setCurrentItem(url: model.url)
@@ -52,19 +43,7 @@ struct VideoPlayerLayer: UIViewRepresentable {
     return view
   }
   
-  func updateUIView(_ uiView: VideoPlayerView, context: Context) {
-    
-  }
-  
-  mutating func connect() {
-    pv?.player = model.player
-    print("Connecting player.")
-  }
-  
-  mutating func disconnect() {
-    pv?.player = nil
-    print("Disconnecting player.")
-  }
+  func updateUIView(_ uiView: VideoPlayerView, context: Context) {}
   
   func makeCoordinator() -> Coordinator {
     return Coordinator(self)
@@ -89,8 +68,10 @@ class Coordinator: NSObject, AVPictureInPictureControllerDelegate {
             controller.startPictureInPicture()
           }
         }
-        else if controller.isPictureInPictureActive {
-          controller.stopPictureInPicture()
+        else {
+          if controller.isPictureInPictureActive {
+            controller.stopPictureInPicture()
+          }
         }
       }
   }

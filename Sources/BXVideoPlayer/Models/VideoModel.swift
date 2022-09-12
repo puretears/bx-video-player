@@ -5,11 +5,11 @@
 //  Created by Mars on 2022/6/24.
 //
 
-import Foundation
-import Combine
-import AVFoundation
-import MediaPlayer
 import UIKit
+import Combine
+import Foundation
+import MediaPlayer
+import AVFoundation
 
 private let ERROR_VIDEO_LENGTH = 104.0
 private let ERROR_VIDEO_RATIO: CGFloat = 1.78
@@ -17,11 +17,6 @@ private let ERROR_VIDEO_RATIO: CGFloat = 1.78
 enum VideoInfo {
   case duration(Double)
   case ratio(CGFloat)
-}
-
-enum PlayerOrientation {
-  case portrait
-  case landscape
 }
 
 enum VideoError: Error {
@@ -37,8 +32,17 @@ extension CGFloat {
     formatter.unitsStyle = .positional
     formatter.zeroFormattingBehavior = .pad
     
-    return formatter.string(from: self) ?? ""
+    return formatter.string(from: self) ?? "00:00"
   }
+}
+
+/*
+ The player could be in landscape mode when the device is in portrait mode or vice vesa.
+ So we cannot rely on the device orientation.
+ */
+public enum PlayerOrientation {
+  case portrait
+  case landscape
 }
 
 public class VideoModel: ObservableObject {
@@ -58,12 +62,11 @@ public class VideoModel: ObservableObject {
   @Published public var brightness: CGFloat = UIScreen.br
   
   @Published public var isPipMode = false
-  
   @Published public var isDisplayingControl = true
   
-  var playerOrientation: PlayerOrientation = .portrait
+  public var playerOrientation: PlayerOrientation = .portrait
   
-  var nowPlayingInfo = [String : Any]()
+  private var nowPlayingInfo = [String : Any]()
   private var timeObserver: Any?
   private var subscriptions: Set<AnyCancellable> = []
   
@@ -111,12 +114,13 @@ public class VideoModel: ObservableObject {
       using: { [weak self] time in
         guard let self = self else { return }
         
+        // Cannot update the progress when seeking the video.
         if !self.isEditingCurrentTime {
           self.currentTime = time.seconds
           self.currentProgress = self.currentTime / self.duration
         }
       }
-    )
+    ) // End timeObserver
   }
   
   @MainActor
@@ -317,7 +321,6 @@ extension VideoModel {
     nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentTime
     nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = duration
     nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 1
-    // Set the metadata
     MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
   }
   

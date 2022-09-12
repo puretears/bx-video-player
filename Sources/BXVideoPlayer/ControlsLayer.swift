@@ -24,8 +24,11 @@ struct ControlsLayer: View {
     return verticalSizeClass == .compact
   }
   
-  public init(model: VideoModel) {
+  let controlActions: () -> Void
+  
+  public init(model: VideoModel, controlActions: @escaping () -> Void = {}) {
     self.model = model
+    self.controlActions = controlActions
   }
   
   var body: some View {
@@ -71,7 +74,7 @@ extension ControlsLayer {
       })
       
       Button(action: {
-        
+        controlActions()
       }, label: {
         Image("ellipse", bundle: .module).resizable().frame(width: 20, height: 20)
           .frame(width: 44, height: 44)
@@ -82,6 +85,7 @@ extension ControlsLayer {
     .foregroundColor(.white)
   }
   
+  @ViewBuilder
   func makeBottomBar() -> some View {
     HStack(spacing: 0) {
       makePlayButton()

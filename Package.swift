@@ -17,6 +17,7 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
       .package(url: "https://github.com/puretears/bx-slider-view", branch: "main"),
+      .package(url: "https://github.com/puretears/bx-downloader", branch: "main")
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -24,7 +25,8 @@ let package = Package(
         .target(
             name: "BXVideoPlayer",
             dependencies: [
-              .product(name: "BXSliderView", package: "bx-slider-view")
+              .product(name: "BXSliderView", package: "bx-slider-view"),
+              .product(name: "BXDownloader", package: "bx-downloader")
             ],
             resources: [
               .process("Assets/Resources.xcassets")
