@@ -88,14 +88,11 @@ public struct BXVideoPlayer: View {
   }
   
   let controlActions: () -> Void
-  let gestureActions: () -> Void
   
   public init(model: VideoModel,
-              controlActions: @escaping () -> Void = {},
-              gestureActions: @escaping () -> Void = {}) {
+              controlActions: @escaping () -> Void = {}) {
     self.model = model
     self.controlActions = controlActions
-    self.gestureActions = gestureActions
     
     // we need this to use Picture in Picture
     let audioSession = AVAudioSession.sharedInstance()
@@ -124,7 +121,7 @@ public struct BXVideoPlayer: View {
           ControlsLayer(model: model, controlActions: controlActions)
           
           // Gesture
-          GestureLayer(model: model, area: proxy.size, gestureActions: gestureActions)
+          GestureLayer(model: model, area: proxy.size)
 #if DEBUG
 .overlay {
   makeDebugFrame(color: .brown, label: "Gesture area")

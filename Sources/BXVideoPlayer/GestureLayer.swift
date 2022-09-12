@@ -31,12 +31,9 @@ struct GestureLayer: View {
   @State var timer = Timer.publish(every: 1, on: .main, in: .common)
   @State var connectedTimer: Cancellable?
   
-  let gestureActions: () -> Void
-  
   public init(model: VideoModel, area: CGSize, gestureActions: @escaping () -> Void = {}) {
     self.model = model
     self._area = State(initialValue: area)
-    self.gestureActions = gestureActions
   }
   
   var body: some View {
@@ -67,7 +64,6 @@ print("Video paused. Displaying control UI.")
     }
     .onTapGesture {
       toggleControlUI()
-      gestureActions()
       
       if model.isPlaying && model.isDisplayingControl {
 #if DEBUG
