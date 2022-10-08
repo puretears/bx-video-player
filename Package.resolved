@@ -1,6 +1,15 @@
 {
   "pins" : [
     {
+      "identity" : "bx-downloader",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/puretears/bx-downloader",
+      "state" : {
+        "branch" : "main",
+        "revision" : "bb090776f5c52920083914786869477643c2c9eb"
+      }
+    },
+    {
       "identity" : "bx-slider-view",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/puretears/bx-slider-view",

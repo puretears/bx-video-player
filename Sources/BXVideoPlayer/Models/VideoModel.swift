@@ -64,6 +64,8 @@ public class VideoModel: ObservableObject {
   @Published public var isPipMode = false
   @Published public var isDisplayingControl = true
   
+  @Published public var playerIsReady = false
+  
   public var playerOrientation: PlayerOrientation = .portrait
   
   private var nowPlayingInfo = [String : Any]()
@@ -84,47 +86,35 @@ public class VideoModel: ObservableObject {
     player.automaticallyWaitsToMinimizeStalling = false
     
     Task {
-      try? await setCurrentItem(url: url)
-      setupRemoteTransportControls()
-      setupNowPlaying()
-    }
-    
-    player.publisher(for: \.timeControlStatus)
-      .sink { [weak self] status in
-        switch status {
-        case .playing:
-          #if DEBUG
-          print("Play the video")
-          #endif
-          self?.commandCenterPlay()
-          self?.isPlaying = true
-        default:
-          #if DEBUG
-          print("Stop playing the video")
-          #endif
-          self?.commandCenterPause()
-          self?.isPlaying = false
-        }
-      }
-      .store(in: &subscriptions)
-  
-    timeObserver = player.addPeriodicTimeObserver(
-      forInterval: CMTime(value: 1, timescale: 600),
-      queue: .main,
-      using: { [weak self] time in
-        guard let self = self else { return }
+      do {
+        try await setCurrentItem(url: url)
         
-        // Cannot update the progress when seeking the video.
-        if !self.isEditingCurrentTime {
-          self.currentTime = time.seconds
-          self.currentProgress = self.currentTime / self.duration
+        subscribePlayerState()
+        subscribePlayingProgress()
+        setupRemoteTransportControls()
+        setupNowPlaying()
+      }
+      catch {
+        if let e = error as? VideoError {
+          switch e {
+          case .emptyTrack:
+            print("[BXVideoPlayer] Trying to play a video with empty track.")
+          case .nonPlayable:
+            print("[BXVideoPlayer] Trying to play a non-playable file.")
+          }
         }
       }
-    ) // End timeObserver
+    }
   }
   
   @MainActor
-  public func setCurrentItem(url: URL) async throws {
+  public func switchUrl(url: URL) async throws {
+    playerIsReady = false
+    try await setCurrentItem(url: url)
+  }
+  
+  @MainActor
+  public func setCurrentItem(url: URL) async throws  {
     self.url = url
     let asset = AVAsset(url: url)
     
@@ -154,6 +144,8 @@ public class VideoModel: ObservableObject {
     
     let item = AVPlayerItem(asset: asset)
     player.replaceCurrentItem(with: item)
+    
+    playerIsReady = true
   }
   
   @MainActor
@@ -239,6 +231,53 @@ extension VideoModel {
     else {
       throw VideoError.emptyTrack
     }
+  }
+  
+  private func subscribePlayerState() {
+    player.publisher(for: \.timeControlStatus)
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] status in
+        switch status {
+        case .playing:
+          #if DEBUG
+          print("[BXVideoPlayer] Play the video.")
+          #endif
+          self?.commandCenterPlay()
+          self?.isPlaying = true
+        case .waitingToPlayAtSpecifiedRate:
+          #if DEBUG
+          print("[BXVideoPlayer] The player is waiting for network conditions to improve.")
+          #endif
+          self?.isPlaying = false
+        case .paused:
+          #if DEBUG
+          print("The player was paused.")
+          #endif
+          self?.commandCenterPause()
+          self?.isPlaying = false
+        @unknown default:
+          print("[BXVideoPlayer] Unknown player state.")
+          self?.isPlaying = false
+          self?.playerIsReady = false
+        }
+      }
+      .store(in: &subscriptions)
+  }
+  
+  private func subscribePlayingProgress() {
+    timeObserver = player.addPeriodicTimeObserver(
+      forInterval: CMTime(value: 1, timescale: 600),
+      queue: .main,
+      using: { [weak self] time in
+        guard let self = self else { return }
+        
+        // Cannot update the progress when seeking the video.
+        if !self.isEditingCurrentTime {
+          self.currentTime = time.seconds
+          self.currentProgress = self.currentTime / self.duration
+        }
+      }
+    ) // End timeObserver
   }
 }
 

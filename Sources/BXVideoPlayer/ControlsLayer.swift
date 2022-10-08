@@ -83,6 +83,9 @@ extension ControlsLayer {
     }
     .frame(height: 44)
     .foregroundColor(.white)
+    .background(
+      Color.black.opacity(0.3)
+    )
   }
   
   @ViewBuilder
@@ -95,6 +98,9 @@ extension ControlsLayer {
       makeFullscreenToggle()
     }
     .frame(height: 44)
+    .background(
+      Color.black.opacity(0.3)
+    )
   }
 }
 

@@ -109,28 +109,26 @@ public struct BXVideoPlayer: View {
         .ignoresSafeArea()
         
       // video
-      GeometryReader { proxy in
-        ZStack {
-          VideoPlayerLayer(model: model)
-#if DEBUG
-.overlay {
-  makeDebugFrame(color: .red, label: "Video player")
-}
-#endif
-          // control
-          ControlsLayer(model: model, controlActions: controlActions)
-          
-          // Gesture
-          GestureLayer(model: model, area: proxy.size)
-#if DEBUG
-.overlay {
-  makeDebugFrame(color: .brown, label: "Gesture area")
-}
-#endif
-          .padding(.top, 44)
-          .padding(.bottom, 44)
+      if !model.playerIsReady {
+        Text("Loading video...").foregroundColor(.white)
+      }
+      else {
+        GeometryReader { proxy in
+          ZStack {
+            VideoPlayerLayer(model: model)
+
+            // control
+            ControlsLayer(model: model, controlActions: controlActions)
+            
+            // Gesture
+            GestureLayer(model: model, area: proxy.size)
+            
+            .padding(.top, 44)
+            .padding(.bottom, 44)
+          }
         }
       }
+      
     }
     .onRotate {
       if $0 == .portrait {
