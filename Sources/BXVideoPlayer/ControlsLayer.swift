@@ -91,7 +91,7 @@ extension ControlsLayer {
     .frame(height: 44)
     .foregroundColor(.white)
     .background(
-      Color.black.opacity(0.3)
+      Color.black.opacity(0.5)
     )
   }
   
@@ -106,7 +106,7 @@ extension ControlsLayer {
     }
     .frame(height: 44)
     .background(
-      Color.black.opacity(0.3)
+      Color.black.opacity(0.5)
     )
   }
 }
