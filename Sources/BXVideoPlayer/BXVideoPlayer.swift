@@ -56,6 +56,8 @@ public struct BXVideoPlayer: View {
   @Environment(\.horizontalSizeClass) var horizontalSizeClass: UserInterfaceSizeClass?
   @Environment(\.scenePhase) var scenePhase
   
+  @State var showsControlPannel = true
+  
   @ObservedObject var model: VideoModel
   
   var width: CGFloat { UIScreen.width }
@@ -90,8 +92,10 @@ public struct BXVideoPlayer: View {
   let controlActions: () -> Void
   
   public init(model: VideoModel,
+              showsControlPannel: Bool = true,
               controlActions: @escaping () -> Void = {}) {
     self.model = model
+    self._showsControlPannel = State(wrappedValue: showsControlPannel)
     self.controlActions = controlActions
     
     // we need this to use Picture in Picture
@@ -118,7 +122,7 @@ public struct BXVideoPlayer: View {
             VideoPlayerLayer(model: model)
 
             // control
-            ControlsLayer(model: model, controlActions: controlActions)
+            ControlsLayer(model: model, showsControlPannel: $showsControlPannel, controlActions: controlActions)
             
             // Gesture
             GestureLayer(model: model, area: proxy.size)

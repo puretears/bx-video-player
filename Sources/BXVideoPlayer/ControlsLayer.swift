@@ -11,6 +11,7 @@ import BXSliderView
 struct ControlsLayer: View {
   @ObservedObject var model: VideoModel
   @State var hPadding: CGFloat = 15
+  @Binding var showsControlPannel: Bool
   
   @Environment(\.presentationMode) var presentationMode
   @Environment(\.verticalSizeClass) var verticalSizeClass: UserInterfaceSizeClass?
@@ -26,8 +27,12 @@ struct ControlsLayer: View {
   
   let controlActions: () -> Void
   
-  public init(model: VideoModel, controlActions: @escaping () -> Void = {}) {
+  public init(
+    model: VideoModel,
+    showsControlPannel: Binding<Bool>,
+    controlActions: @escaping () -> Void = {}) {
     self.model = model
+    self._showsControlPannel = showsControlPannel
     self.controlActions = controlActions
   }
   
@@ -73,13 +78,15 @@ extension ControlsLayer {
           .foregroundColor(.white)
       })
       
-      Button(action: {
-        controlActions()
-      }, label: {
-        Image("ellipse", bundle: .module).resizable().frame(width: 20, height: 20)
-          .frame(width: 44, height: 44)
-          .foregroundColor(.white)
-      })
+      if showsControlPannel {
+        Button(action: {
+          controlActions()
+        }, label: {
+          Image("ellipse", bundle: .module).resizable().frame(width: 20, height: 20)
+            .frame(width: 44, height: 44)
+            .foregroundColor(.white)
+        })
+      }
     }
     .frame(height: 44)
     .foregroundColor(.white)
