@@ -10,21 +10,11 @@ import AVKit
 
 public extension UIScreen {
   static var width: CGFloat {
-    UIApplication.shared.connectedScenes
-      .compactMap { scene -> UIWindow? in
-        (scene as? UIWindowScene)?.keyWindow
-      }
-      .first?
-      .screen.bounds.width ?? 0
+    (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.screen.bounds.width ?? 0
   }
   
   static var height: CGFloat {
-    UIApplication.shared.connectedScenes
-      .compactMap { scene -> UIWindow? in
-        (scene as? UIWindowScene)?.keyWindow
-      }
-      .first?
-      .screen.bounds.height ?? 0
+    (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.screen.bounds.height ?? 0
   }
   
   static var isLandscape: Bool {
@@ -33,20 +23,10 @@ public extension UIScreen {
   
   static var br: CGFloat {
     get {
-      UIApplication.shared.connectedScenes
-        .compactMap { scene -> UIWindow? in
-          (scene as? UIWindowScene)?.keyWindow
-        }
-        .first?
-        .screen.brightness ?? 0.5
+      (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.screen.brightness ?? 0.5
     }
     set {
-      UIApplication.shared.connectedScenes
-        .compactMap { scene -> UIWindow? in
-          (scene as? UIWindowScene)?.keyWindow
-        }
-        .first?
-        .screen.brightness = newValue
+      (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.screen.brightness = newValue
     }
   }
 }
